@@ -1,7 +1,4 @@
 from langchain_community.chat_models import BedrockChat
-from langchain.memory import ConversationBufferMemory
-from langchain.chains import ConversationChain
-
 import os
 from dotenv import load_dotenv
 
@@ -31,39 +28,21 @@ def bedrock_chatbot():
 
     return bedrock_llm
 
-def buff_memory():
+def simple_chat(input_text):
     """
-    대화 이력을 저장하는 메모리 객체를 생성하고 반환합니다.
-    이 메모리는 LLM 대화 컨텍스트를 유지하는 데 사용됩니다.
-    """
-    buff_memory = bedrock_chatbot()
-    memory = ConversationBufferMemory(
-        # 대화 이력 처리를 위한 LLM 객체
-        llm=buff_memory,
-        # 메모리에 저장할 최대 토큰 수 (이전 대화 컨텍스트 유지 길이)
-        max_token_limit=200
-    )
-    return memory
-
-def cnvs_chain(input_text, memory):
-    """
-    사용자 입력을 받아 LLM에 전달하고 응답을 반환하는 대화 체인을 생성합니다.
+    메모리 저장 없이 단순하게 채팅 테스트를 수행하는 함수입니다.
     
     Args:
         input_text (str): 사용자 입력 메시지
-        memory (ConversationBufferMemory): 대화 이력이 저장된 메모리 객체
         
     Returns:
         str: LLM 응답 텍스트
     """
-    chain_data = bedrock_chatbot()
-    # 대화 체인 생성 (LLM + 메모리)
-    cnvs_chain = ConversationChain(
-        llm=chain_data,  # LLM 모델
-        memory=memory,   # 대화 이력 메모리
-        verbose=True     # 디버깅을 위한 상세 로그 출력 여부
-    )
-
-    # 사용자 입력을 LLM에 전달하고 응답 반환
-    chat_reply = cnvs_chain.predict(input=input_text)
-    return chat_reply
+    # BedrockChat 객체 생성
+    bedrock_llm = bedrock_chatbot()
+    
+    # 사용자 입력에 대한 응답 생성
+    response = bedrock_llm.invoke(input_text)
+    
+    # 응답 반환
+    return response.content
